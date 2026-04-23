@@ -50,7 +50,7 @@ const CONFIG = {
       id: "geopol",
       icon: "fa-earth-americas",
       nome: "Geopolítico",
-      desc: "Países, guerra, RP",
+      desc: "Nações, guerra, economia e RP",
       preco: 50
     },
     {
