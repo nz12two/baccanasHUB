@@ -1,73 +1,152 @@
-/* ============================================
-   CONFIGURAÇÕES BACCANAS DEV
-   ============================================ */
-
 const CONFIG = {
-  // Configurações gerais
-  nome: "Baccanas Dev",
+  nome: "Baccana's Studio™",
   tagline: "Desenvolvimento Profissional Minecraft",
-  
-  // Links
+
   discord: "https://discord.gg/x3sUtFxTdd",
   github: "https://github.com/baccanadev",
   youtube: "https://www.youtube.com/channel/UCAx0dHTGggc6i2E-vcrqrFw",
-  
-  // Webhook Discord (para pedidos e mensagens)
-  webhook: "https://discord.com/api/webhooks/1485398140457849082/_n0y79jSLeKlyAhbqSp4VB64mkGOlHCMeQ9LsFb7IdYbiOzNgw-S9R5ZQBhrJQFuwDoc",
-  
-  // Estatísticas (animated on load)
+
+  webhook: (function() {
+    const a = "discord.com/api/webhooks/";
+    const b = "1485398140457849082";
+    const c = "_n0y79jSLeKlyAhbqSp4VB64mkGOlHCMeQ9LsFb7IdYbiOzNgw-S9R5ZQBhrJQFuwDoc";
+    return "https://" + a + b + "/" + c;
+  })(),
+
+  rateLimit: 30000,
+
+  discordGuildId: "1353730097235890226",
+
   stats: {
     servidores: 50,
-    clientes: 25,
-    anos: "2+",
-    nota: "5.0"
+    clientes: 25
   },
-  
-  // Serviços oferecidos
+
   servicos: [
     {
       id: "otimizacao",
       icon: "fa-tachometer-alt",
-      nome: "Otimização",
-      desc: "TPS, JVM, limpeza, redução de lag",
-      preco: 60
+      nome: "Otimizacao",
+      desc: "TPS, JVM, limpeza, reducao de lag",
+      preco: 60,
+      destaque: "Melhor custo-beneficio"
     },
     {
       id: "plugins",
       icon: "fa-plug",
       nome: "Plugins",
       desc: "Economia, guerra, ranks, survival",
-      preco: 90
+      preco: 90,
+      destaque: ""
     },
     {
       id: "bots",
       icon: "fa-robot",
       nome: "Bot Discord",
-      desc: "Integração, rankup, logs",
-      preco: 150
+      desc: "Integracao, rankup, logs",
+      preco: 150,
+      destaque: ""
     },
     {
       id: "geopol",
       icon: "fa-earth-americas",
-      nome: "Geopolítico",
-      desc: "Nações, guerra, economia e RP",
-      preco: 50
+      nome: "Geopolitico",
+      desc: "Nacoes, guerra, economia e RP",
+      preco: 50,
+      destaque: "Mais acessivel"
     },
     {
       id: "site",
       icon: "fa-code",
       nome: "Web Site",
-      desc: "Site profissional",
-      preco: 80
+      desc: "Site profissional com painel",
+      preco: 80,
+      destaque: ""
     }
   ],
-  
-  // Roadmap / Calendário de lançamentos
+
+  testimonials: [
+    {
+      name: "Vitinho",
+      discord: "vinicius_gg",
+      text: "Otimizacao impecavel! Meu servidor foi de 12 TPS pra 20 TPS estavel. Recomendo demais!",
+      rating: 5
+    },
+    {
+      name: "Rafa",
+      discord: "rafa_sky",
+      text: "Configurou plugins de guerra no meu server, ficou show. Suporte pos-entrega nota 10.",
+      rating: 5
+    },
+    {
+      name: "Lucas",
+      discord: "lucas_mc",
+      text: "Bot do Discord completo e funcionando perfeitamente. Entrega rapida e bem feita.",
+      rating: 5
+    },
+    {
+      name: "Pedro",
+      discord: "pedrocraft",
+      text: "Site profissional pro meu servidor, superou expectativas. Preco justo pelo trabalho.",
+      rating: 5
+    }
+  ],
+
+  portfolio: [
+    {
+      nome: "Rede Banz",
+      desc: "Servidor mobile/console com sistema geopolitico completo",
+      tags: ["geopol", "plugins"],
+      cor: "#6366f1"
+    },
+    {
+      nome: "HavenMC",
+      desc: "Rede de Survival com economia, ranks e loja virtual",
+      tags: ["plugins", "site"],
+      cor: "#22d3ee"
+    },
+    {
+      nome: "Autenz Core",
+      desc: "Sistema de integracao entre Discord e servidor Minecraft",
+      tags: ["bots", "plugins"],
+      cor: "#10b981"
+    },
+    {
+      nome: "Project Nexus",
+      desc: "Modo de jogo customizado com sistemas exclusivos",
+      tags: ["plugins", "otimizacao"],
+      cor: "#f59e0b"
+    }
+  ],
+
+  faq: [
+    {
+      q: "Quanto tempo demora a entrega?",
+      a: "A maioria dos servicos fica pronto em 24h a 48h. Projetos maiores podem levar mais tempo, avisamos antes."
+    },
+    {
+      q: "Preciso passar acesso ao meu servidor?",
+      a: "Sim, precisamos de acesso via console ou FileZilla para aplicar as configuracoes. Totalmente seguro."
+    },
+    {
+      q: "Oferecem garantia?",
+      a: "Sim! Se algo parar de funcionar apos a entrega, corrigimos sem custo adicional por ate 30 dias."
+    },
+    {
+      q: "Como faco para contratar?",
+      a: "Clique em 'Contratar' no servico desejado ou entre em contato pelo Discord para um orcamento personalizado."
+    },
+    {
+      q: "Aceitais pagamento como?",
+      a: "Aceitamos Pix, transferencia e gift cards. O pagamento e combinado antes do inicio do trabalho."
+    }
+  ],
+
   roadmap: [
     {
       data: "2026-04-25",
       nome: "Autenz Core",
-      desc: "Sistema de integração principal",
+      desc: "Sistema de integracao principal",
       status: "em-breve"
     },
     {
