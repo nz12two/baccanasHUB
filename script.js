@@ -10,12 +10,12 @@ function initAll() {
   renderTestimonials();
   renderFAQ();
   if (!CONFIG.promocao?.ativa) document.querySelector('.hero-promo')?.remove();
-  renderBlog();
   renderComparar();
+  initScrollAnimations();
+  renderBlog();
   renderServerStatus();
   injectSchemaJSONLD();
   animateStats();
-  initScrollAnimations();
   initScrollEffects();
   initContato();
   initMenu();
@@ -170,11 +170,10 @@ function renderBlog() {
   const grid = document.getElementById('blogGrid');
   if (!grid) return;
 
-  const observer = window.__scrollObserver;
-
   const observeCards = () => {
-    if (!observer) return;
-    grid.querySelectorAll('.blog-card:not(.animate-in)').forEach(el => observer.observe(el));
+    const obs = window.__scrollObserver;
+    if (!obs) return;
+    grid.querySelectorAll('.blog-card:not(.animate-in)').forEach(el => obs.observe(el));
   };
 
   const fmt = (d) => { try { return new Date(d + 'T12:00:00Z').toLocaleDateString('pt-BR', { timeZone: 'UTC' }); } catch { return ''; } };
@@ -591,7 +590,15 @@ function initModal() {
     if (btnContratar) {
       const servicoId = btnContratar.dataset.servicoId;
       const servico = CONFIG.servicos.find(s => s.id === servicoId);
-      if (servico) showContratarModal(servico);
+      if (servico) {
+        const promo = CONFIG.promocao;
+        const emPromo = promo?.ativa && (promo.tipo === 'todos' || promo.servicos.includes(servico.id));
+        const precoFinal = emPromo ? Math.round(servico.preco * (1 - promo.porcentagem / 100)) : servico.preco;
+        const msg = `Olá! Quero contratar o servico de **${servico.nome}** por R$ ${precoFinal}.`;
+        navigator.clipboard.writeText(msg).catch(() => {});
+        notify('Mensagem copiada! Cole no Discord.', 'success');
+        setTimeout(() => window.open(CONFIG.discord, '_blank'), 800);
+      }
       return;
     }
     const btnDetalhes = e.target.closest('.btn-detalhes');
@@ -824,26 +831,16 @@ function quickReply(tipo) {
 }
 
 function initDCWidget() {
-  const iframe = document.getElementById('dcIframe');
-  if (!iframe) return;
-
   const guildId = CONFIG.discordGuildId;
-  if (guildId) {
-    iframe.src = `https://discord.com/widget?id=${guildId}&theme=dark`;
-    try {
-      fetch(`https://discord.com/api/guilds/${guildId}/widget.json`)
-        .then(r => r.ok ? r.json() : null)
-        .then(data => {
-          if (data && data.presence_count !== undefined) {
-            document.getElementById('dcMemberCount').textContent = data.presence_count;
-          }
-        })
-        .catch(() => {});
-    } catch (e) {}
-  } else {
-    iframe.style.display = 'none';
-    document.getElementById('dcMemberCount').textContent = '0';
-  }
+  if (!guildId) return;
+  fetch(`https://discord.com/api/guilds/${guildId}/widget.json`)
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      const count = data?.presence_count ?? '?';
+      document.getElementById('dcMemberCount') && (document.getElementById('dcMemberCount').textContent = count);
+      document.getElementById('dcMemberCountContato') && (document.getElementById('dcMemberCountContato').textContent = count);
+    })
+    .catch(() => {});
 }
 
 function initFAQ() {

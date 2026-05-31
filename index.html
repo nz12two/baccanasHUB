@@ -271,7 +271,7 @@
     <div class="container">
       <div class="section-title">
         <h2><i class="fas fa-paper-plane"></i> Entre em Contato</h2>
-        <p>Quer um orçamento personalizado?</p>
+        <p>Quer um orçamento personalizado? Mande uma mensagem</p>
       </div>
       <div class="contato-grid">
         <form class="contact-form" id="contactForm">
@@ -282,33 +282,35 @@
             </div>
             <div class="form-group">
               <label for="discordId" class="sr-only">Seu Discord</label>
-              <input type="text" id="discordId" placeholder="Seu Discord" required>
+              <input type="text" id="discordId" placeholder="Seu Discord (Ex: usuario_123)" required>
             </div>
           </div>
           <div class="form-group">
             <label for="message" class="sr-only">Descreva seu projeto</label>
-            <textarea id="message" placeholder="Descreva seu projeto" required></textarea>
+            <textarea id="message" placeholder="Descreva seu projeto — tipo de servidor, plugins desejados, prazo, orçamento..." required></textarea>
           </div>
           <button type="submit" class="btn btn-primary" id="submitBtn">
             <i class="fab fa-discord"></i> Solicitar Orçamento
           </button>
         </form>
-        <div class="dc-widget-side" id="dcWidgetSide">
-          <div class="dc-widget-header">
+        <div class="contato-discord">
+          <div class="contato-discord-header">
             <i class="fab fa-discord"></i>
-            <h3>Servidor Discord</h3>
+            <span>Discord</span>
           </div>
-          <div class="dc-widget-members">
-            <div class="dc-widget-online">
+          <p class="contato-discord-text">Respondo mais rápido por aqui</p>
+          <div class="contato-discord-info">
+            <div class="contato-discord-info-item">
+              <i class="fas fa-user"></i>
+              <span><strong>Usuario:</strong> baccanasdev</span>
+            </div>
+            <div class="contato-discord-info-item">
               <span class="online-dot"></span>
-              <span id="dcMemberCount">--</span> membros online
+              <span id="dcMemberCountContato">--</span> <span>membros online</span>
             </div>
           </div>
-          <div class="dc-widget-preview" id="dcWidgetPreview">
-            <iframe id="dcIframe" src="https://discord.com/widget?id=&theme=dark" width="100%" height="360" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts" loading="lazy"></iframe>
-          </div>
-          <a href="https://discord.gg/x3sUtFxTdd" class="btn btn-primary" target="_blank" style="width:100%;justify-content:center">
-            <i class="fab fa-discord"></i> Entrar no Discord
+          <a href="https://discord.gg/x3sUtFxTdd" class="btn btn-discord-full" target="_blank">
+            <i class="fab fa-discord"></i> Entrar no servidor
           </a>
         </div>
       </div>

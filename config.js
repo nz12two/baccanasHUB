@@ -3,6 +3,7 @@ const CONFIG = {
   tagline: "Desenvolvimento Profissional Minecraft",
 
   discord: "https://discord.gg/x3sUtFxTdd",
+  conviteTexto: "Quer abrir um chamado? Me chame no Discord!",
   github: "https://github.com/baccanadev",
   youtube: "https://youtube.com/@baccanasdev",
 
@@ -156,6 +157,18 @@ const CONFIG = {
     {
       q: "Aceitam pagamento como?",
       a: "Aceitamos Pix, transferência e gift cards. O pagamento é combinado antes do início do trabalho."
+    },
+    {
+      q: "E se eu não gostar do resultado?",
+      a: "Trabalhamos com revisões até você ficar satisfeito. Seu feedback é parte do processo."
+    },
+    {
+      q: "Preciso pagar antes de começar?",
+      a: "Trabalhamos com 50% de entrada e 50% na entrega. Confiança é via de mao dupla."
+    },
+    {
+      q: "Vocês atendem qualquer versão do Minecraft?",
+      a: "Sim, trabalhamos com Java Edition (qualquer versão) e também servidores跨 plataforma Java+Bedrock."
     }
   ],
 
