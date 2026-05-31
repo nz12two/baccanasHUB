@@ -1,0 +1,5 @@
+{
+  "buildCommand": "node scripts/sync-substack.js",
+  "outputDirectory": ".",
+  "framework": null
+}

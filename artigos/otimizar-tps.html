@@ -1,0 +1,31 @@
+<h2>O que causa queda de TPS?</h2>
+<ul>
+  <li><strong>Entidades em excesso:</strong> animais, mobs, itens soltos no chao</li>
+  <li><strong>Redstone complexa:</strong> circuitos grandes e repetidores em loop</li>
+  <li><strong>Chunks mal carregados:</strong> farms em areas carregadas o tempo todo</li>
+  <li><strong>Plugins pesados:</strong> alguns plugins consomem mais recurso do que deveriam</li>
+  <li><strong>JVM mal configurada:</strong> argumentos de memoria incorretos ou GC ineficiente</li>
+</ul>
+
+<h2>1. Configure a JVM corretamente</h2>
+<p>Use flags de garbage collection modernas. Para servidores com Paper 1.20+, recomendamos:</p>
+<pre><code>-Xms4G -Xmx4G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true</code></pre>
+<p>Use sempre <code>-Xms</code> e <code>-Xmx</code> com o <strong>mesmo valor</strong> para evitar que a JVM fique realocando memoria.</p>
+
+<h2>2. Use Paper (ou Purpur)</h2>
+<p>Paper e um fork do Spigot com centenas de otimizacoes de performance. Purpur vai alem, adicionando mais configs e features. A migracao e simples: so substituir o jar e os plugins continuam funcionando.</p>
+
+<h2>3. Limpe entidades regularmente</h2>
+<p>Configure um plugin de limpeza automatica de entidades. Itens no chao, mobs em excesso e animais acumulados sao a causa #1 de queda de TPS em servidores survival.</p>
+
+<h2>4. Otimize o paper.yml e spigot.yml</h2>
+<p>Arquivos de configuracao do Paper tem dezenas de opcoes de performance. As mais importantes:</p>
+<ul>
+  <li><code>max-entity-collisions: 2</code> — reduz colisoes</li>
+  <li><code>despawn-ranges.soft: 32</code> — mobs desaparecem mais rapido</li>
+  <li><code>mob-spawner-tick-rate: 2</code> — spawners atualizam menos vezes</li>
+  <li><code>nerf-spawner-mobs: true</code> — mobs de spawner nao tem AI</li>
+</ul>
+
+<h2>5. Monitore com Timings</h2>
+<p>Use o comando <code>/timings</code> (Paper) para identificar exatamente quais plugins e entidades estao consumindo mais recursos. Isso e essencial para um diagnostico preciso.</p>

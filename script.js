@@ -9,6 +9,11 @@ function initAll() {
   renderRoadmap();
   renderTestimonials();
   renderFAQ();
+  if (!CONFIG.promocao?.ativa) document.querySelector('.hero-promo')?.remove();
+  renderBlog();
+  renderComparar();
+  renderServerStatus();
+  injectSchemaJSONLD();
   animateStats();
   initScrollAnimations();
   initScrollEffects();
@@ -19,23 +24,38 @@ function initAll() {
   initNavLinks();
   initFAQ();
   initDCWidget();
+  initBackToTop();
+  initParallax();
 }
 
 function renderServices() {
   const grid = document.getElementById('servicesGrid');
   if (!grid) return;
-  grid.innerHTML = CONFIG.servicos.map((s, i) => `
-    <div class="service-card" data-delay="${i * 0.1}">
+  const promo = CONFIG.promocao;
+  const emPromo = (id) => promo?.ativa && (promo.tipo === 'todos' || promo.servicos.includes(id));
+  const calcPreco = (preco) => Math.round(preco * (1 - promo.porcentagem / 100));
+  grid.innerHTML = CONFIG.servicos.map((s, i) => {
+    const desconto = emPromo(s.id);
+    return `
+    <div class="service-card${desconto ? ' em-promocao' : ''}" data-delay="${i * 0.1}">
+      ${desconto ? `<span class="servico-promo">-${promo.porcentagem}%</span>` : ''}
       ${s.destaque ? `<span class="servico-destaque">${s.destaque}</span>` : ''}
       <div class="service-icon"><i class="fas ${s.icon}"></i></div>
       <h3>${s.nome}</h3>
       <p>${s.desc}</p>
-      <span class="service-price">R$ ${s.preco}</span>
-      <button class="btn btn-primary btn-contratar" data-servico-id="${s.id}">
-        <i class="fas fa-shopping-cart"></i> Contratar
-      </button>
+      ${desconto
+        ? `<span class="service-price"><span class="price-original">R$ ${s.preco}</span> R$ ${calcPreco(s.preco)}</span>`
+        : `<span class="service-price">R$ ${s.preco}</span>`}
+      <div style="display:flex;gap:0.5rem">
+        <button class="btn btn-outline btn-detalhes" data-servico-id="${s.id}" style="flex:1">
+          <i class="fas fa-info-circle"></i> Detalhes
+        </button>
+        <button class="btn btn-primary btn-contratar" data-servico-id="${s.id}" style="flex:1">
+          <i class="fas fa-shopping-cart"></i> Contratar
+        </button>
+      </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 function renderPlans() {
@@ -86,6 +106,8 @@ function renderRoadmap() {
   container.innerHTML = CONFIG.roadmap.map((r, i) => {
     const data = new Date(r.data + 'T12:00:00Z');
     const mes = fmt.format(data);
+    const p = r.progresso !== undefined ? r.progresso : 0;
+    const statusLabel = r.status.replace(/-/g, ' ');
     return `
       <div class="roadmap-item" data-delay="${i * 0.1}">
         <div class="roadmap-header">
@@ -95,7 +117,13 @@ function renderRoadmap() {
         <div class="roadmap-body">
           <h3>${r.nome}</h3>
           <p>${r.desc}</p>
-          <span class="roadmap-status status-${r.status}">${r.status}</span>
+          <span class="roadmap-status status-${r.status}">${statusLabel}</span>
+          <div class="roadmap-progress">
+            <div class="roadmap-progress-bar">
+              <div class="roadmap-progress-fill" style="width:${p}%"></div>
+            </div>
+            <span class="roadmap-progress-label">${p}% concluído</span>
+          </div>
         </div>
       </div>
     `;
@@ -136,6 +164,195 @@ function renderFAQ() {
       </div>
     </div>
   `).join('');
+}
+
+function renderBlog() {
+  const grid = document.getElementById('blogGrid');
+  if (!grid) return;
+
+  const observer = window.__scrollObserver;
+
+  const observeCards = () => {
+    if (!observer) return;
+    grid.querySelectorAll('.blog-card:not(.animate-in)').forEach(el => observer.observe(el));
+  };
+
+  const fmt = (d) => { try { return new Date(d + 'T12:00:00Z').toLocaleDateString('pt-BR', { timeZone: 'UTC' }); } catch { return ''; } };
+
+  const renderCards = (items, prefix) => {
+    grid.innerHTML = items.map((a, i) => {
+      const cls = i === 0 ? 'blog-card blog-card-featured' : 'blog-card';
+      return `
+        <div class="${cls}" data-delay="${i * 0.15}" data-index="${prefix}${i}">
+          <div class="blog-card-icon"><i class="fas ${a.icon || 'fa-cube'}"></i></div>
+          <div>
+            <h3>${a.titulo}</h3>
+            <p>${a.resumo}</p>
+            <div class="blog-card-footer">
+              <span class="blog-card-date"><i class="far fa-calendar-alt"></i> ${fmt(a.data)}</span>
+              <button class="blog-card-btn" data-index="${prefix}${i}">Ler mais <i class="fas fa-arrow-right"></i></button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('') +
+    '<a href="https://bacanacat.substack.com" target="_blank" class="blog-substack-link"><i class="fas fa-external-link-alt"></i> Ver todos no Substack</a>';
+    observeCards();
+  };
+
+  fetch('https://bacanacat.substack.com/api/v1/posts?limit=3')
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(posts => {
+      if (!posts || !posts.length) throw new Error('empty');
+      window.__blogPosts = posts;
+      renderCards(posts.map(p => ({
+        titulo: p.title,
+        resumo: (p.truncated_body_text || p.description || '').substring(0, 200),
+        data: (p.post_date || p.published_date || '').substring(0, 10),
+        icon: 'fa-cube'
+      })), 'api-');
+    })
+    .catch(() => {
+      if (!CONFIG.artigos) return;
+      renderCards(CONFIG.artigos.slice(0, 3), '');
+    });
+}
+
+function renderComparar() {
+  const container = document.getElementById('compararTable');
+  if (!container) return;
+  const servicos = CONFIG.servicos;
+  const allFeatures = [...new Set(servicos.flatMap(s => s.features))];
+  const initialCount = 5;
+  const hasMore = allFeatures.length > initialCount;
+
+  let html = '<table class="comparar-table" data-delay="0">';
+  html += '<thead><tr><th>Serviço</th>';
+  servicos.forEach((s, i) => {
+    html += `<th>${s.nome}${i === 1 ? '<span class="plan-badge-sm">Mais Procurado</span>' : ''}<br><small style="font-weight:400;color:var(--primary-light)">R$ ${s.preco}</small></th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  html += `<tr><td>Preço</td>`;
+  servicos.forEach(s => {
+    html += `<td><strong style="color:var(--primary-light);font-size:1.1rem">R$ ${s.preco}</strong></td>`;
+  });
+  html += '</tr>';
+
+  allFeatures.forEach((f, idx) => {
+    const hidden = hasMore && idx >= initialCount;
+    html += `<tr class="${hidden ? 'comparar-hidden' : ''}"><td>${f}</td>`;
+    servicos.forEach(s => {
+      const has = s.features.includes(f);
+      html += `<td><i class="fas fa-${has ? 'check' : 'times'}"></i></td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+
+  if (hasMore) {
+    html += `<div class="comparar-table-footer">
+      <button class="btn-comparar-toggle" id="compararToggle">
+        <span id="compararToggleText">Mostrar mais ${allFeatures.length - initialCount} características</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+
+  const toggleBtn = document.getElementById('compararToggle');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      const rows = container.querySelectorAll('.comparar-hidden');
+      const isHidden = rows.length > 0;
+      rows.forEach(r => r.classList.remove('comparar-hidden'));
+      if (!isHidden) {
+        container.querySelectorAll('.comparar-table tbody tr:not(:first-child)').forEach((r, i) => {
+          if (i >= initialCount) r.classList.add('comparar-hidden');
+        });
+      }
+      toggleBtn.classList.toggle('expanded');
+      document.getElementById('compararToggleText').textContent =
+        toggleBtn.classList.contains('expanded')
+          ? 'Mostrar menos'
+          : `Mostrar mais ${allFeatures.length - initialCount} características`;
+    });
+  }
+}
+
+function clearSkeleton(el) {
+  if (el) el.classList.remove('skeleton', 'skeleton-text', 'skeleton-text-short');
+}
+
+function renderServerStatus() {
+  const badge = document.getElementById('serverBadge');
+  if (!badge || !CONFIG.serverIp) return;
+  const dot = document.getElementById('sbdDot');
+  const players = document.getElementById('sbdPlayers');
+  const ip = document.getElementById('sbdIp');
+  const versao = document.getElementById('sbdVersao');
+  const ping = document.getElementById('sbdPing');
+
+  ip.textContent = CONFIG.serverIp;
+
+  fetch('https://api.mcsrvstat.us/2/' + CONFIG.serverIp)
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(data => {
+      clearSkeleton(dot); clearSkeleton(players);
+
+      if (data.online) {
+        dot.className = 'server-badge-dot online';
+        players.textContent = data.players?.online ?? '?';
+        versao.textContent = data.version || '?';
+        ping.textContent = (data.debug?.ping ?? '?') + 'ms';
+      } else {
+        dot.className = 'server-badge-dot offline';
+        players.textContent = '0';
+        versao.textContent = '--';
+        ping.textContent = '--';
+      }
+    })
+    .catch(() => {
+      clearSkeleton(dot); clearSkeleton(players);
+      dot.className = 'server-badge-dot offline';
+      players.textContent = '?';
+      versao.textContent = '?';
+      ping.textContent = '?';
+    });
+}
+
+function injectSchemaJSONLD() {
+  const precoMin = Math.min(...CONFIG.servicos.map(s => s.preco));
+  const precoMax = Math.max(...CONFIG.servicos.map(s => s.preco));
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": CONFIG.nome,
+    "description": CONFIG.tagline + ". " + CONFIG.servicos.map(s => s.nome + " - R$" + s.preco).join("; "),
+    "url": "https://baccanas.studio",
+    "image": "https://baccanas.studio/assets/favicon.png",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5.0",
+      "reviewCount": CONFIG.testimonials ? CONFIG.testimonials.length : "0",
+      "bestRating": "5"
+    },
+    "offers": {
+      "@type": "AggregateOffer",
+      "priceCurrency": "BRL",
+      "lowPrice": precoMin,
+      "highPrice": precoMax,
+      "offerCount": CONFIG.servicos.length
+    },
+    "areaServed": "Brazil",
+    "priceRange": "R$ " + precoMin + " - R$ " + precoMax
+  };
+  const script = document.createElement('script');
+  script.type = 'application/ld+json';
+  script.textContent = JSON.stringify(schema);
+  document.head.appendChild(script);
 }
 
 function animateStats() {
@@ -184,14 +401,11 @@ function initScrollAnimations() {
     });
   }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
 
-  document.querySelectorAll('.service-card, .plan-card, .roadmap-item, .testimonial-card, .faq-item, .portfolio-card, .step').forEach(el => {
+  document.querySelectorAll('.service-card, .plan-card, .roadmap-item, .testimonial-card, .faq-item, .portfolio-card, .step, .feature-card, .blog-card, .comparar-table').forEach(el => {
     observer.observe(el);
   });
 
-  document.querySelectorAll('.feature-card').forEach((el, i) => {
-    el.style.animationDelay = (i * 0.15) + 's';
-    el.classList.add('animate-in');
-  });
+  window.__scrollObserver = observer;
 }
 
 function initScrollEffects() {
@@ -208,6 +422,73 @@ function initScrollEffects() {
   });
 }
 
+function openArticle(idx) {
+  const modal = document.getElementById('articleModal');
+  const body = document.getElementById('articleBody');
+
+  const showModal = (titulo, categoria, data, html) => {
+    document.getElementById('articleBadge').textContent = categoria || 'Artigo';
+    document.getElementById('articleTitle').textContent = titulo;
+    const fmt = data ? new Date(data + 'T12:00:00Z').toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '';
+    document.getElementById('articleMeta').innerHTML = fmt ? `<i class="far fa-calendar-alt"></i> ${fmt}` : '';
+    body.innerHTML = html;
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  };
+
+  if (typeof idx === 'string' && idx.startsWith('api-')) {
+    const p = window.__blogPosts?.[parseInt(idx.slice(4))];
+    if (!p) return;
+    if (p.body) {
+      showModal(p.title, 'Artigo', (p.post_date || p.published_date || '').substring(0, 10), p.body);
+    } else if (p.canonical_url) {
+      window.open(p.canonical_url, '_blank');
+    }
+    return;
+  }
+
+  const a = CONFIG.artigos?.[parseInt(idx)];
+  if (!a) return;
+
+  if (a.arquivo) {
+    showModal(a.titulo, a.categoria, a.data,
+      '<div class="article-loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>');
+    fetch(a.arquivo).then(r => r.ok ? r.text() : Promise.reject())
+      .then(html => { body.innerHTML = html; })
+      .catch(() => {
+        body.innerHTML = '<p>Nao foi possivel carregar o artigo. <a href="' + (a.url || '#') + '" target="_blank">Abrir no Substack</a></p>';
+      });
+  } else if (a.conteudo) {
+    showModal(a.titulo, a.categoria, a.data, a.conteudo);
+  } else if (a.url) {
+    window.open(a.url, '_blank');
+  }
+}
+
+function closeArticle() {
+  document.getElementById('articleModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('click', e => {
+  const card = e.target.closest('.blog-card');
+  const btn = e.target.closest('.blog-card-btn');
+  if (!card && !btn) return;
+  const el = card || btn;
+  const idx = el.dataset.index;
+  if (idx === undefined) return;
+  e.preventDefault();
+  openArticle(idx);
+});
+
+document.getElementById('articleModalClose')?.addEventListener('click', closeArticle);
+document.getElementById('articleModal')?.addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeArticle();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('articleModal')?.classList.contains('show')) closeArticle();
+});
+
 function initContato() {
   const form = document.getElementById('contactForm');
   if (!form) return;
@@ -216,19 +497,29 @@ function initContato() {
     const nome = document.getElementById('name').value.trim();
     const discord = document.getElementById('discordId').value.trim();
     const msg = document.getElementById('message').value.trim();
+    const btn = document.getElementById('submitBtn');
 
     if (!nome || !discord || !msg) {
       notify('Preencha todos os campos', 'error');
       return;
     }
 
-    await enviarWebhook("Nova mensagem!", [
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+    const ok = await enviarWebhook("Nova mensagem!", [
       { name: "Nome", value: nome },
       { name: "Discord", value: discord },
       { name: "Mensagem", value: msg }
     ]);
-    notify("Enviado!", "success");
-    form.reset();
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fab fa-discord"></i> Solicitar Orçamento';
+
+    if (ok) {
+      notify("Enviado!", "success");
+      form.reset();
+    }
   });
 }
 
@@ -263,14 +554,14 @@ function initWidget() {
 
   toggle.addEventListener('click', () => {
     panel.classList.toggle('show');
-    toggle.style.display = panel.classList.contains('show') ? 'none' : 'flex';
+    toggle.classList.toggle('hidden');
   });
 
   const closeBtn = document.querySelector('.widget-close');
   if (closeBtn) {
     closeBtn.addEventListener('click', () => {
       panel.classList.remove('show');
-      toggle.style.display = 'flex';
+      toggle.classList.remove('hidden');
     });
   }
 
@@ -296,11 +587,19 @@ function initModal() {
   });
 
   document.addEventListener('click', e => {
-    const btn = e.target.closest('.btn-contratar');
-    if (!btn) return;
-    const servicoId = btn.dataset.servicoId;
-    const servico = CONFIG.servicos.find(s => s.id === servicoId);
-    if (servico) showContratarModal(servico);
+    const btnContratar = e.target.closest('.btn-contratar');
+    if (btnContratar) {
+      const servicoId = btnContratar.dataset.servicoId;
+      const servico = CONFIG.servicos.find(s => s.id === servicoId);
+      if (servico) showContratarModal(servico);
+      return;
+    }
+    const btnDetalhes = e.target.closest('.btn-detalhes');
+    if (btnDetalhes) {
+      const servicoId = btnDetalhes.dataset.servicoId;
+      const servico = CONFIG.servicos.find(s => s.id === servicoId);
+      if (servico) showDetalhesModal(servico);
+    }
   });
 }
 
@@ -352,6 +651,47 @@ function showContratarModal(servico) {
   });
 }
 
+function showDetalhesModal(servico) {
+  const overlay = document.getElementById('modalOverlay');
+  const title = document.getElementById('modalTitle');
+  const body = document.getElementById('modalBody');
+  const footer = document.getElementById('modalFooter');
+
+  title.textContent = servico.nome;
+
+  body.innerHTML = `
+    <div class="detail-header">
+      <div class="service-icon" style="margin:0 auto 1rem"><i class="fas ${servico.icon}"></i></div>
+      <h2>${servico.nome}</h2>
+      <p>${servico.desc}</p>
+    </div>
+    <div class="detail-meta">
+      <span><i class="fas fa-tag"></i> R$ ${servico.preco}</span>
+      <span><i class="far fa-clock"></i> Entrega em ~${servico.prazo}</span>
+      <span><i class="fas fa-shield-alt"></i> Garantia 30 dias</span>
+    </div>
+    <div class="detail-features">
+      <h4><i class="fas fa-check-circle"></i> O que está incluso</h4>
+      <ul>${servico.features.map(f => '<li><i class="fas fa-check"></i> ' + f + '</li>').join('')}</ul>
+    </div>
+  `;
+
+  footer.innerHTML = `
+    <button class="btn btn-outline" id="modalCloseDetail">Fechar</button>
+    <button class="btn btn-primary" id="modalContratarDetail">
+      <i class="fas fa-shopping-cart"></i> Contratar
+    </button>
+  `;
+
+  overlay.classList.add('show');
+
+  document.getElementById('modalCloseDetail').addEventListener('click', fecharModal);
+  document.getElementById('modalContratarDetail').addEventListener('click', () => {
+    fecharModal();
+    setTimeout(() => showContratarModal(servico), 300);
+  });
+}
+
 function fecharModal() {
   const overlay = document.getElementById('modalOverlay');
   if (overlay) overlay.classList.remove('show');
@@ -371,7 +711,7 @@ async function contratar(servicoId, preco) {
   await enviarWebhook("Novo pedido!", [
     { name: "Cliente", value: nome },
     { name: "Discord", value: discord },
-    { name: "Servico", value: servico.nome },
+    { name: "Serviço", value: servico.nome },
     { name: "Valor", value: "R$ " + preco }
   ]);
 
@@ -431,9 +771,9 @@ function notify(msg, tipo) {
 
 function quickReply(tipo) {
   const msgs = {
-    orcamento: "Ola! Gostaria de fazer um orcamento.",
-    duvida: "Ola! Tenho uma duvida sobre os servicos.",
-    urgente: "Ola! Preciso de atendimento urgente!"
+    orcamento: "Olá! Gostaria de fazer um orçamento.",
+    duvida: "Olá! Tenho uma dúvida sobre os serviços.",
+    urgente: "Olá! Preciso de atendimento urgente!"
   };
 
   const overlay = document.getElementById('modalOverlay');
@@ -479,7 +819,7 @@ function quickReply(tipo) {
     const panel = document.getElementById('widgetPanel');
     const toggle = document.getElementById('widgetToggle');
     if (panel) panel.classList.remove('show');
-    if (toggle) toggle.style.display = 'flex';
+    if (toggle) toggle.classList.remove('hidden');
   });
 }
 
@@ -513,5 +853,39 @@ function initFAQ() {
     const item = question.closest('.faq-item');
     if (!item) return;
     item.classList.toggle('open');
+  });
+}
+
+function initBackToTop() {
+  const btn = document.getElementById('backToTop');
+  if (!btn) return;
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        btn.classList.toggle('visible', window.scrollY > 400);
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+function initParallax() {
+  const bg = document.querySelector('.hero-bg');
+  if (!bg) return;
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        const y = window.scrollY * 0.35;
+        bg.style.transform = 'translateY(' + y + 'px)';
+        ticking = false;
+      });
+      ticking = true;
+    }
   });
 }
