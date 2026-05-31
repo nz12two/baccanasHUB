@@ -174,6 +174,16 @@ const CONFIG = {
 
   serverIp: "sd-br4.blazebr.com:27703",
 
+  comparar: [
+    { feature: "Suporte pós-entrega", nos: "30 dias", eles: "15 dias" },
+    { feature: "Pagamento parcelado", nos: "50% entrada + 50% entrega", eles: "100% adiantado" },
+    { feature: "Plugins personalizados", nos: "Sob medida pro seu server", eles: "Genérico" },
+    { feature: "Entrega", nos: "24h a 48h", eles: "1 a 2 semanas" },
+    { feature: "Revisões", nos: "Ilimitadas", eles: "Limitadas" },
+    { feature: "Suporte Técnico", nos: "Direto com dev", eles: "Ticket automatizado" },
+    { feature: "Garantia", nos: "30 dias", eles: "7 dias" }
+  ],
+
   artigos: [
     {
       id: "znodes-geopolitica",

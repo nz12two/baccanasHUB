@@ -228,66 +228,17 @@ function renderBlog() {
 
 function renderComparar() {
   const container = document.getElementById('compararTable');
-  if (!container) return;
-  const servicos = CONFIG.servicos;
-  const allFeatures = [...new Set(servicos.flatMap(s => s.features))];
-  const initialCount = 5;
-  const hasMore = allFeatures.length > initialCount;
+  if (!container || !CONFIG.comparar) return;
 
   let html = '<table class="comparar-table" data-delay="0">';
-  html += '<thead><tr><th>Serviço</th>';
-  servicos.forEach((s, i) => {
-    html += `<th>${s.nome}${i === 1 ? '<span class="plan-badge-sm">Mais Procurado</span>' : ''}<br><small style="font-weight:400;color:var(--primary-light)">R$ ${s.preco}</small></th>`;
-  });
-  html += '</tr></thead><tbody>';
+  html += '<thead><tr><th></th><th><i class="fas fa-crown"></i> Nós</th><th>Concorrência</th></tr></thead><tbody>';
 
-  html += `<tr><td>Preço</td>`;
-  servicos.forEach(s => {
-    html += `<td><strong style="color:var(--primary-light);font-size:1.1rem">R$ ${s.preco}</strong></td>`;
-  });
-  html += '</tr>';
-
-  allFeatures.forEach((f, idx) => {
-    const hidden = hasMore && idx >= initialCount;
-    html += `<tr class="${hidden ? 'comparar-hidden' : ''}"><td>${f}</td>`;
-    servicos.forEach(s => {
-      const has = s.features.includes(f);
-      html += `<td><i class="fas fa-${has ? 'check' : 'times'}"></i></td>`;
-    });
-    html += '</tr>';
+  CONFIG.comparar.forEach(item => {
+    html += `<tr><td>${item.feature}</td><td><span class="cmp-nos">${item.nos}</span></td><td><span class="cmp-eles">${item.eles}</span></td></tr>`;
   });
 
   html += '</tbody></table>';
-
-  if (hasMore) {
-    html += `<div class="comparar-table-footer">
-      <button class="btn-comparar-toggle" id="compararToggle">
-        <span id="compararToggleText">Mostrar mais ${allFeatures.length - initialCount} características</span>
-        <i class="fas fa-chevron-down"></i>
-      </button>
-    </div>`;
-  }
-
   container.innerHTML = html;
-
-  const toggleBtn = document.getElementById('compararToggle');
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-      const rows = container.querySelectorAll('.comparar-hidden');
-      const isHidden = rows.length > 0;
-      rows.forEach(r => r.classList.remove('comparar-hidden'));
-      if (!isHidden) {
-        container.querySelectorAll('.comparar-table tbody tr:not(:first-child)').forEach((r, i) => {
-          if (i >= initialCount) r.classList.add('comparar-hidden');
-        });
-      }
-      toggleBtn.classList.toggle('expanded');
-      document.getElementById('compararToggleText').textContent =
-        toggleBtn.classList.contains('expanded')
-          ? 'Mostrar menos'
-          : `Mostrar mais ${allFeatures.length - initialCount} características`;
-    });
-  }
 }
 
 function clearSkeleton(el) {

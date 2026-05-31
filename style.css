@@ -544,28 +544,29 @@ section { padding: 6rem 0; }
 .comparar-table th {
   padding: 1.25rem 1rem; text-align: center; font-size: 0.95rem;
   background: var(--surface-light); border-bottom: 1px solid var(--border);
-  font-weight: 700; white-space: nowrap;
+  font-weight: 700;
 }
-.comparar-table th:first-child { text-align: left; padding-left: 1.5rem; position: sticky; left: 0; background: var(--surface-light); z-index: 1; }
-.comparar-table th .plan-badge-sm {
-  display: block; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em;
-  background: linear-gradient(135deg, var(--primary), var(--accent-cyan));
-  color: white; padding: 0.15rem 0.5rem; border-radius: 999px;
-  margin-top: 0.3rem;
-}
+.comparar-table th:first-child { text-align: left; padding-left: 1.5rem; }
+.comparar-table th:nth-child(2) { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
+.comparar-table th:nth-child(2) i { margin-right: 0.35rem; }
+
 .comparar-table td {
-  padding: 0.9rem 1rem; text-align: center; font-size: 0.85rem;
+  padding: 1rem 1rem; text-align: center; font-size: 0.85rem;
   border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary);
+  vertical-align: middle;
 }
 .comparar-table td:first-child {
   text-align: left; font-weight: 600; color: var(--text);
-  padding-left: 1.5rem; position: sticky; left: 0; background: var(--surface); z-index: 1;
+  padding-left: 1.5rem;
 }
+.comparar-table td:nth-child(2) { background: rgba(99, 102, 241, 0.04); }
 .comparar-table tr:last-child td { border-bottom: none; }
-.comparar-table td i.fa-check { color: var(--accent-emerald); font-size: 1rem; }
-.comparar-table td i.fa-times { color: var(--text-muted); font-size: 0.85rem; opacity: 0.5; }
+
+.cmp-nos { color: var(--primary-light); font-weight: 600; font-size: 0.9rem; }
+.cmp-eles { color: var(--text-muted); font-size: 0.85rem; }
+
 .comparar-table tr:hover td { background: rgba(99, 102, 241, 0.03); }
-.comparar-table tr:hover td:first-child { background: var(--surface); }
+.comparar-table tr:hover td:nth-child(2) { background: rgba(99, 102, 241, 0.08); }
 
 .comparar-table tr.comparar-hidden { display: none; }
 .comparar-table-footer { text-align: center; padding: 1rem; background: var(--surface); }
@@ -875,6 +876,8 @@ footer { background: var(--surface); border-top: 1px solid var(--border-subtle);
   .steps { flex-wrap: wrap; gap: 1.5rem 0; }
   .step { flex: 0 0 45%; }
   .step-connector { display: none; }
+  .comparar-table th { font-size: 0.85rem; padding: 1rem 0.75rem; }
+  .comparar-table td { padding: 0.75rem; font-size: 0.8rem; }
 }
 
 @media (max-width: 768px) {
@@ -896,6 +899,17 @@ footer { background: var(--surface); border-top: 1px solid var(--border-subtle);
   .footer-links { flex-direction: column; gap: 1.5rem; }
   .footer-bottom { flex-direction: column; text-align: center; }
   .form-row { grid-template-columns: 1fr; }
+
+  section { padding: 4rem 0; }
+  .section-title { margin-bottom: 2.5rem; }
+  .section-title h2 { font-size: 1.5rem; }
+  .services-grid, .plans-grid { grid-template-columns: 1fr; }
+  .hero-stats { flex-wrap: wrap; justify-content: center; }
+  .portfolio-grid { grid-template-columns: 1fr; }
+  .contato-grid { gap: 1.5rem; }
+  .discord-box { padding: 1.75rem; }
+  .comparar-wrapper { margin: 0 -1rem; }
+  .comparar-wrapper .comparar-table { border-radius: 0; }
 }
 
 @media (max-width: 480px) {
@@ -912,6 +926,19 @@ footer { background: var(--surface); border-top: 1px solid var(--border-subtle);
   .article-body { padding: 0.25rem 1.25rem 1.5rem; font-size: 0.92rem; }
   .server-badge { display: none; }
   .hero-promo { width: 90px; right: -10px; top: -5px; }
+
+  .container { padding: 0 1rem; }
+  section { padding: 3rem 0; }
+  .hero { padding: 5rem 0 2rem; }
+  .testimonial-card { padding: 1.5rem; }
+  .service-card, .plan-card { padding: 1.25rem; }
+  .blog-card { padding: 1.25rem; }
+  .blog-card-btn { font-size: 0.75rem; }
+  .section-title h2 { font-size: 1.3rem; }
+  .back-to-top { width: 40px; height: 40px; font-size: 0.95rem; bottom: 1rem; left: 1rem; }
+  .contato-grid { gap: 1rem; }
+  .comparar-table th { font-size: 0.75rem; padding: 0.75rem 0.5rem; }
+  .comparar-table td { padding: 0.6rem 0.5rem; font-size: 0.75rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
