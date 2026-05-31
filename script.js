@@ -172,8 +172,17 @@ function renderBlog() {
 
   const observeCards = () => {
     const obs = window.__scrollObserver;
-    if (!obs) return;
-    grid.querySelectorAll('.blog-card:not(.animate-in)').forEach(el => obs.observe(el));
+    grid.querySelectorAll('.blog-card:not(.animate-in)').forEach(el => {
+      if (obs) {
+        obs.observe(el);
+        if (el.getBoundingClientRect().top < window.innerHeight) {
+          const delay = parseFloat(el.dataset.delay) || 0;
+          setTimeout(() => el.classList.add('animate-in'), delay * 1000);
+        }
+      } else {
+        el.classList.add('animate-in');
+      }
+    });
   };
 
   const fmt = (d) => { try { return new Date(d + 'T12:00:00Z').toLocaleDateString('pt-BR', { timeZone: 'UTC' }); } catch { return ''; } };
