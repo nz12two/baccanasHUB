@@ -285,26 +285,26 @@ const CONFIG = {
       data: "2026-04-25",
       nome: "Autenz Core",
       desc: "Sistema de integração principal",
-      status: "em-breve",
-      progresso: 75
+      status: "Planejamento",
+      progresso: 15
     },
     {
       data: "2026-04-10",
       nome: "Rede Banz",
       desc: "Servidor mobile/console",
       status: "desenvolvimento",
-      progresso: 45
+      progresso: 88
     },
     {
       data: "2026-05-07",
       nome: "Dashboard",
       desc: "Painel de controle",
       status: "planejado",
-      progresso: 20
+      progresso: 3
     },
     {
       data: "2026-06-01",
-      nome: "Site Oficial",
+      nome: "Site Oficial(Rede banz)",
       desc: "Ranking e loja",
       status: "em-breve",
       progresso: 0
