@@ -1,19 +1,27 @@
 let lastWebhookTime = 0;
+let submitting = false;
+
+function sanitizeInput(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
 
 document.addEventListener('DOMContentLoaded', initAll);
 
 function initAll() {
+  renderPromo();
   renderServices();
-  renderPlans();
+  renderAuthority();
+  renderWorkProcess();
+  renderAbout();
   renderPortfolio();
-  renderRoadmap();
   renderTestimonials();
   renderFAQ();
-  if (!CONFIG.promocao?.ativa) document.querySelector('.hero-promo')?.remove();
   renderComparar();
+  renderTermos();
   initScrollAnimations();
   renderBlog();
-  renderServerStatus();
   injectSchemaJSONLD();
   animateStats();
   initScrollEffects();
@@ -26,6 +34,84 @@ function initAll() {
   initDCWidget();
   initBackToTop();
   initParallax();
+  initTermos();
+}
+
+function renderTermos() {
+  const container = document.getElementById('termosContent');
+  if (!container) return;
+
+  const data = new Date().toLocaleDateString('pt-BR');
+
+  container.innerHTML = `
+    <p><strong>Última atualização:</strong> ${data}</p>
+
+    <h4>1. Identificação das Partes</h4>
+    <p><strong>Contratante:</strong> Cliente que solicita o serviço, doravante denominado "CONTRATANTE".</p>
+    <p><strong>Contratada:</strong> Baccana's Studio&trade;, pessoa física responsável pelo desenvolvimento, doravante denominada "CONTRATADA".</p>
+    <p><strong>Meio oficial de contato:</strong> Discord (usuário: baccanasdev) e WhatsApp (<span class="termos-placeholder">[INSERIR NÚMERO]</span>).</p>
+
+    <h4>2. Objeto</h4>
+    <p>O presente termo tem como objeto a prestação de serviços de desenvolvimento, configuração e/ou otimização para servidores Minecraft, conforme especificado no orçamento enviado ao CONTRATANTE antes do início dos trabalhos.</p>
+
+    <h4>3. Orçamento e Aceitação</h4>
+    <p>3.1. O orçamento é enviado por escrito (Discord, WhatsApp ou e-mail) e contém: descrição do serviço, prazo estimado, valor total e forma de pagamento.</p>
+    <p>3.2. A contratação é formalizada mediante o aceite do orçamento e o pagamento da entrada de <strong>50% (cinquenta por cento) do valor total</strong>.</p>
+
+    <h4>4. Pagamento</h4>
+    <p>4.1. <strong>Entrada:</strong> 50% antes do início do desenvolvimento.</p>
+    <p>4.2. <strong>Saldo:</strong> 50% na entrega do serviço, após validação do CONTRATANTE.</p>
+    <p>4.3. <strong>Formas de pagamento aceitas:</strong> Pix, transferência bancária e gift cards, conforme combinado previamente.</p>
+
+    <h4>5. Prazos</h4>
+    <p>5.1. O prazo de entrega é estipulado no orçamento e começa a contar após o pagamento da entrada.</p>
+    <p>5.2. Atrasos por parte do CONTRATANTE (como demora na resposta ou fornecimento de informações) podem estender o prazo proporcionalmente.</p>
+    <p>5.3. A CONTRATADA se compromete a informar proativamente sobre qualquer imprevisto que possa afetar o prazo.</p>
+
+    <h4>6. Entrega e Validação</h4>
+    <p>6.1. O serviço é considerado entregue quando estiver funcionando conforme o escopo acordado.</p>
+    <p>6.2. O CONTRATANTE tem até <strong>3 (três) dias úteis</strong> para testar e validar a entrega ou solicitar ajustes.</p>
+    <p>6.3. Após a validação, o saldo restante (50%) deve ser pago em até <strong>2 (dois) dias úteis</strong>.</p>
+
+    <h4>7. Garantia e Suporte Pós-Entrega</h4>
+    <p>7.1. A CONTRATADA oferece <strong>30 (trinta) dias de suporte</strong> a partir da data de validação da entrega.</p>
+    <p>7.2. Durante este período, correções de bugs ou problemas diretamente relacionados ao serviço prestado são realizadas <strong>sem custo adicional</strong>.</p>
+    <p>7.3. A garantia não cobre: alterações feitas pelo CONTRATANTE, conflitos com plugins de terceiros não configurados pela CONTRATADA, ou problemas causados por atualizações do servidor/Minecraft.</p>
+
+    <h4>8. Direitos Autorais e Propriedade Intelectual</h4>
+    <p>8.1. Todo o código, configurações e materiais desenvolvidos especificamente para o CONTRATANTE são de propriedade do CONTRATANTE após o pagamento integral.</p>
+    <p>8.2. A CONTRATADA pode utilizar o trabalho realizado em seu portfólio, salvo acordo em contrário.</p>
+    <p>8.3. Plugins, bibliotecas e ferramentas de terceiros mantêm suas respectivas licenças originais.</p>
+
+    <h4>9. Cancelamento e Reembolso</h4>
+    <p>9.1. O CONTRATANTE pode cancelar o serviço a qualquer momento antes da entrega.</p>
+    <p>9.2. Em caso de cancelamento antes do início do desenvolvimento, o valor da entrada é integralmente reembolsado.</p>
+    <p>9.3. Em caso de cancelamento durante o desenvolvimento, o valor reembolsado é proporcional ao trabalho ainda não realizado.</p>
+    <p>9.4. Após a validação da entrega, não há reembolso.</p>
+
+    <h4>10. Disposições Gerais</h4>
+    <p>10.1. A CONTRATADA não se responsabiliza por danos causados por mau uso, modificações não autorizadas ou acesso de terceiros ao servidor.</p>
+    <p>10.2. A CONTRATADA não armazena dados sensíveis do CONTRATANTE além do necessário para a prestação do serviço.</p>
+    <p>10.3. Este termo pode ser atualizado a qualquer momento. Versões anteriores ficam arquivadas mediante solicitação.</p>
+
+    <p style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border-subtle);font-size:0.85rem;color:var(--text-muted);">
+      <i class="fas fa-info-circle"></i> Este documento é um modelo. Os campos marcados com <span class="termos-placeholder">[DESTAQUE]</span> devem ser preenchidos com as informações reais antes da formalização de cada contrato.
+    </p>
+  `;
+}
+
+function renderPromo() {
+  const el = document.getElementById('heroPromo');
+  if (!el) return;
+  const p = CONFIG.promocao;
+  if (!p?.ativa) { el.remove(); return; }
+  if (p.tipo === 'desconto') {
+    el.innerHTML = `<span class="promo-pct">-${p.porcentagem}%</span>`;
+  } else if (p.tipo === 'escassez') {
+    el.innerHTML = `<span class="promo-main">${p.texto}</span><span class="promo-sub">${p.detalhe}</span>`;
+  } else if (p.tipo === 'brinde') {
+    el.innerHTML = `<span class="promo-main">${p.texto}</span><span class="promo-sub">${p.detalhe}</span>`;
+  }
 }
 
 function renderServices() {
@@ -35,43 +121,91 @@ function renderServices() {
   const emPromo = (id) => promo?.ativa && (promo.tipo === 'todos' || promo.servicos.includes(id));
   const calcPreco = (preco) => Math.round(preco * (1 - promo.porcentagem / 100));
   grid.innerHTML = CONFIG.servicos.map((s, i) => {
-    const desconto = emPromo(s.id);
+    const emPromocao = emPromo(s.id);
+    let badge = '';
+    if (emPromocao && promo.tipo === 'desconto') {
+      badge = `<span class="servico-promo">-${promo.porcentagem}%</span>`;
+    } else if (emPromocao && (promo.tipo === 'escassez' || promo.tipo === 'brinde')) {
+      badge = `<span class="servico-promo">${promo.texto}</span>`;
+    }
+    let precoHtml = `<span class="service-price">R$ ${s.preco}</span>`;
+    if (emPromocao && promo.tipo === 'desconto') {
+      precoHtml = `<span class="service-price"><span class="price-original">R$ ${s.preco}</span> R$ ${calcPreco(s.preco)}</span>`;
+    }
     return `
-    <div class="service-card${desconto ? ' em-promocao' : ''}" data-delay="${i * 0.1}">
-      ${desconto ? `<span class="servico-promo">-${promo.porcentagem}%</span>` : ''}
+    <div class="service-card${emPromocao ? ' em-promocao' : ''}" data-delay="${i * 0.1}">
+      ${badge}
       ${s.destaque ? `<span class="servico-destaque">${s.destaque}</span>` : ''}
       <div class="service-icon"><i class="fas ${s.icon}"></i></div>
       <h3>${s.nome}</h3>
       <p>${s.desc}</p>
-      ${desconto
-        ? `<span class="service-price"><span class="price-original">R$ ${s.preco}</span> R$ ${calcPreco(s.preco)}</span>`
-        : `<span class="service-price">R$ ${s.preco}</span>`}
+      ${precoHtml}
       <div style="display:flex;gap:0.5rem">
         <button class="btn btn-outline btn-detalhes" data-servico-id="${s.id}" style="flex:1">
           <i class="fas fa-info-circle"></i> Detalhes
         </button>
         <button class="btn btn-primary btn-contratar" data-servico-id="${s.id}" style="flex:1">
-          <i class="fas fa-shopping-cart"></i> Contratar
+          <i class="fas fa-shopping-cart"></i> Orçamento
         </button>
       </div>
     </div>
   `}).join('');
 }
 
-function renderPlans() {
-  const grid = document.getElementById('plansGrid');
-  if (!grid) return;
-  const planos = CONFIG.servicos.slice(0, 3);
-  grid.innerHTML = planos.map((p, i) => `
-    <div class="plan-card ${i === 1 ? 'featured' : ''}" data-delay="${i * 0.1}">
-      ${i === 1 ? '<span class="plan-badge">Mais Procurado</span>' : ''}
-      <div class="service-icon" style="margin:0 auto 1rem"><i class="fas ${p.icon}"></i></div>
-      <h3>${p.nome}</h3>
-      <p>${p.desc}</p>
-      <span class="plan-price">R$ ${p.preco}</span>
-      <button class="btn btn-primary btn-contratar" data-servico-id="${p.id}">
-        <i class="fas fa-shopping-cart"></i> Contratar
-      </button>
+function renderAuthority() {
+  const grid = document.getElementById('autoridadeGrid');
+  if (!grid || !CONFIG.autoridade) return;
+  grid.innerHTML = CONFIG.autoridade.map((a, i) => `
+    <div class="autoridade-card" data-delay="${i * 0.15}">
+      <div class="autoridade-card-icon" style="background:${a.cor}">
+        <i class="${a.icon}"></i>
+      </div>
+      <h3>${a.titulo}</h3>
+      <p>${a.desc}</p>
+      <a href="${a.link}" target="_blank" class="autoridade-card-link">
+        ${a.linkText} <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  `).join('');
+}
+
+function renderAbout() {
+  const story = document.getElementById('aboutStory');
+  const cards = document.getElementById('aboutCards');
+  if (!story || !cards || !CONFIG.about) return;
+
+  story.textContent = CONFIG.about.story;
+
+  const mission = document.getElementById('aboutMissionText');
+  const philosophy = document.getElementById('aboutPhilosophyText');
+  if (mission && CONFIG.about.mission) mission.textContent = CONFIG.about.mission;
+  if (philosophy && CONFIG.about.workPhilosophy) philosophy.textContent = CONFIG.about.workPhilosophy;
+
+  const team = CONFIG.about.team || CONFIG.about.founders || [];
+  cards.innerHTML = team.filter(m => m.name).map((f, i) => `
+    <div class="about-card" data-delay="${i * 0.2}">
+      <div class="about-avatar"${f.avatar ? ` style="background-image:url(${f.avatar});background-size:cover;background-position:center"` : ''}>${f.avatar ? '' : f.name.charAt(0)}</div>
+      <h3>${f.name}</h3>
+      ${f.role ? `<span class="about-role">${f.role}</span>` : ''}
+      ${f.bio ? `<p>${f.bio}</p>` : ''}
+      <div class="about-social">
+        ${f.social?.github ? `<a href="${f.social.github}" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>` : ''}
+        ${f.social?.youtube ? `<a href="${f.social.youtube}" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>` : ''}
+        ${f.social?.discord ? `<a href="https://discord.com/users/${f.social.discord}" target="_blank" aria-label="Discord"><i class="fab fa-discord"></i></a>` : ''}
+      </div>
+      ${f.portfolioUrl ? `<a href="${f.portfolioUrl}" target="_blank" class="about-portfolio"><i class="fas fa-briefcase"></i> Portfólio</a>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderWorkProcess() {
+  const container = document.getElementById('workProcess');
+  if (!container || !CONFIG.workProcess) return;
+  container.innerHTML = CONFIG.workProcess.map((w, i) => `
+    <div class="wp-item" data-delay="${i * 0.1}">
+      <div class="wp-item-icon"><i class="fas ${w.icon}"></i></div>
+      <h3>${w.titulo}</h3>
+      <p>${w.desc}</p>
     </div>
   `).join('');
 }
@@ -83,7 +217,8 @@ function renderPortfolio() {
     <div class="portfolio-card" data-delay="${i * 0.15}">
       <div class="portfolio-image" style="background:linear-gradient(135deg, ${p.cor}, ${p.cor}88)">
         <div class="portfolio-shine"></div>
-        <i class="fas fa-server"></i>
+        ${p.imagem ? `<img src="${p.imagem}" alt="${p.nome}" class="portfolio-img" loading="lazy">` : `<span class="portfolio-initial">${p.nome.charAt(0)}</span>`}
+        <span class="portfolio-cat">${p.categoria}</span>
       </div>
       <div class="portfolio-body">
         <h3>${p.nome}</h3>
@@ -97,37 +232,68 @@ function renderPortfolio() {
       </div>
     </div>
   `).join('');
+  grid.querySelectorAll('.portfolio-card').forEach((card, i) => {
+    card.dataset.index = i;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.addEventListener('click', () => showPortfolioDetail(i));
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        showPortfolioDetail(i);
+      }
+    });
+  });
 }
 
-function renderRoadmap() {
-  const container = document.getElementById('roadmapContainer');
-  if (!container) return;
-  const fmt = new Intl.DateTimeFormat('pt-BR', { month: 'long', timeZone: 'UTC' });
-  container.innerHTML = CONFIG.roadmap.map((r, i) => {
-    const data = new Date(r.data + 'T12:00:00Z');
-    const mes = fmt.format(data);
-    const p = r.progresso !== undefined ? r.progresso : 0;
-    const statusLabel = r.status.replace(/-/g, ' ');
-    return `
-      <div class="roadmap-item" data-delay="${i * 0.1}">
-        <div class="roadmap-header">
-          <span class="roadmap-month">${mes}</span>
-          <span class="roadmap-day">${data.getUTCDate()}</span>
-        </div>
-        <div class="roadmap-body">
-          <h3>${r.nome}</h3>
-          <p>${r.desc}</p>
-          <span class="roadmap-status status-${r.status}">${statusLabel}</span>
-          <div class="roadmap-progress">
-            <div class="roadmap-progress-bar">
-              <div class="roadmap-progress-fill" style="width:${p}%"></div>
-            </div>
-            <span class="roadmap-progress-label">${p}% concluído</span>
-          </div>
-        </div>
+function showPortfolioDetail(index) {
+  const p = CONFIG.portfolio[index];
+  if (!p) return;
+  const overlay = document.getElementById('modalOverlay');
+  const title = document.getElementById('modalTitle');
+  const body = document.getElementById('modalBody');
+  const footer = document.getElementById('modalFooter');
+
+  title.textContent = p.nome;
+
+  body.innerHTML = `
+    <div class="portfolio-detail-header" style="background:linear-gradient(135deg, ${p.cor}, ${p.cor}88)">
+      <i class="fas fa-server"></i>
+      <span>${p.desc}</span>
+    </div>
+    ${p.desafio ? `
+    <div class="detail-section">
+      <h4><i class="fas fa-triangle-exclamation"></i> Desafio</h4>
+      <p>${p.desafio}</p>
+    </div>` : ''}
+    ${p.solucao ? `
+    <div class="detail-section">
+      <h4><i class="fas fa-wrench"></i> Solução</h4>
+      <p>${p.solucao}</p>
+    </div>` : ''}
+    ${p.tecnologias?.length ? `
+    <div class="detail-section">
+      <h4><i class="fas fa-code"></i> Tecnologias</h4>
+      <div class="portfolio-tags" style="margin-top:0.5rem">
+        ${p.tecnologias.map(t => `<span class="portfolio-tag">${t}</span>`).join('')}
       </div>
-    `;
-  }).join('');
+    </div>` : ''}
+  `;
+
+  footer.innerHTML = `
+    <button class="btn btn-outline" id="modalCloseDetail">Fechar</button>
+    <button class="btn btn-primary" data-action="contratar-portfolio">
+      <i class="fas fa-shopping-cart"></i> Solicitar Orçamento
+    </button>
+  `;
+
+  overlay.classList.add('show');
+
+  document.getElementById('modalCloseDetail').addEventListener('click', fecharModal);
+  footer.querySelector('[data-action="contratar-portfolio"]').addEventListener('click', () => {
+    fecharModal();
+    setTimeout(() => showContratarModal(p), 300);
+  });
 }
 
 function renderTestimonials() {
@@ -143,7 +309,7 @@ function renderTestimonials() {
         <div class="testimonial-avatar">${t.name.charAt(0)}</div>
         <div>
           <span class="testimonial-name">${t.name}</span>
-          <span class="testimonial-discord">@${t.discord}</span>
+          <span class="testimonial-discord">${t.server ? t.server + (t.role ? ' · ' + t.role : '') : 'Discord: @' + t.discord}</span>
         </div>
       </div>
     </div>
@@ -155,7 +321,7 @@ function renderFAQ() {
   if (!container || !CONFIG.faq) return;
   container.innerHTML = CONFIG.faq.map((item, i) => `
     <div class="faq-item" data-delay="${i * 0.1}">
-      <button class="faq-question">
+      <button class="faq-question" aria-expanded="false">
         <span>${item.q}</span>
         <i class="fas fa-chevron-down"></i>
       </button>
@@ -208,8 +374,13 @@ function renderBlog() {
     observeCards();
   };
 
-  fetch('https://bacanacat.substack.com/api/v1/posts?limit=3')
-    .then(r => r.ok ? r.json() : Promise.reject())
+  const validos = CONFIG.artigos?.filter(a => a.url || a.arquivo) || [];
+  renderCards(validos.slice(0, 3), '');
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3000);
+  fetch('https://bacanacat.substack.com/api/v1/posts?limit=3', { signal: controller.signal })
+    .then(r => { clearTimeout(timeout); return r.ok ? r.json() : Promise.reject(); })
     .then(posts => {
       if (!posts || !posts.length) throw new Error('empty');
       window.__blogPosts = posts;
@@ -220,10 +391,7 @@ function renderBlog() {
         icon: 'fa-cube'
       })), 'api-');
     })
-    .catch(() => {
-      if (!CONFIG.artigos) return;
-      renderCards(CONFIG.artigos.slice(0, 3), '');
-    });
+    .catch(() => {});
 }
 
 function renderComparar() {
@@ -239,47 +407,6 @@ function renderComparar() {
 
   html += '</tbody></table>';
   container.innerHTML = html;
-}
-
-function clearSkeleton(el) {
-  if (el) el.classList.remove('skeleton', 'skeleton-text', 'skeleton-text-short');
-}
-
-function renderServerStatus() {
-  const badge = document.getElementById('serverBadge');
-  if (!badge || !CONFIG.serverIp) return;
-  const dot = document.getElementById('sbdDot');
-  const players = document.getElementById('sbdPlayers');
-  const ip = document.getElementById('sbdIp');
-  const versao = document.getElementById('sbdVersao');
-  const ping = document.getElementById('sbdPing');
-
-  ip.textContent = CONFIG.serverIp;
-
-  fetch('https://api.mcsrvstat.us/2/' + CONFIG.serverIp)
-    .then(r => r.ok ? r.json() : Promise.reject())
-    .then(data => {
-      clearSkeleton(dot); clearSkeleton(players);
-
-      if (data.online) {
-        dot.className = 'server-badge-dot online';
-        players.textContent = data.players?.online ?? '?';
-        versao.textContent = data.version || '?';
-        ping.textContent = (data.debug?.ping ?? '?') + 'ms';
-      } else {
-        dot.className = 'server-badge-dot offline';
-        players.textContent = '0';
-        versao.textContent = '--';
-        ping.textContent = '--';
-      }
-    })
-    .catch(() => {
-      clearSkeleton(dot); clearSkeleton(players);
-      dot.className = 'server-badge-dot offline';
-      players.textContent = '?';
-      versao.textContent = '?';
-      ping.textContent = '?';
-    });
 }
 
 function injectSchemaJSONLD() {
@@ -360,7 +487,7 @@ function initScrollAnimations() {
     });
   }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
 
-  document.querySelectorAll('.service-card, .plan-card, .roadmap-item, .testimonial-card, .faq-item, .portfolio-card, .step, .feature-card, .blog-card, .comparar-table').forEach(el => {
+  document.querySelectorAll('.service-card, .testimonial-card, .faq-item, .portfolio-card, .feature-card, .blog-card, .comparar-table, .about-card, .about-story, .about-mission-card, .autoridade-card, .wp-item').forEach(el => {
     observer.observe(el);
   });
 
@@ -415,7 +542,7 @@ function openArticle(idx) {
     fetch(a.arquivo).then(r => r.ok ? r.text() : Promise.reject())
       .then(html => { body.innerHTML = html; })
       .catch(() => {
-        body.innerHTML = '<p>Nao foi possivel carregar o artigo. <a href="' + (a.url || '#') + '" target="_blank">Abrir no Substack</a></p>';
+        body.innerHTML = '<p>Não foi possível carregar o artigo. <a href="' + (a.url || '#') + '" target="_blank">Abrir no Substack</a></p>';
       });
   } else if (a.conteudo) {
     showModal(a.titulo, a.categoria, a.data, a.conteudo);
@@ -468,15 +595,15 @@ function initContato() {
 
     const ok = await enviarWebhook("Nova mensagem!", [
       { name: "Nome", value: nome },
-      { name: "Discord", value: discord },
+      { name: "Contato", value: discord },
       { name: "Mensagem", value: msg }
     ]);
 
     btn.disabled = false;
-    btn.innerHTML = '<i class="fab fa-discord"></i> Solicitar Orçamento';
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Solicitar Orçamento';
 
     if (ok) {
-      notify("Enviado!", "success");
+      notify("Enviado com sucesso! Respondemos em breve.", "success");
       form.reset();
     }
   });
@@ -512,8 +639,9 @@ function initWidget() {
   if (!toggle || !panel) return;
 
   toggle.addEventListener('click', () => {
-    panel.classList.toggle('show');
+    const isOpen = panel.classList.toggle('show');
     toggle.classList.toggle('hidden');
+    toggle.setAttribute('aria-expanded', isOpen);
   });
 
   const closeBtn = document.querySelector('.widget-close');
@@ -551,13 +679,7 @@ function initModal() {
       const servicoId = btnContratar.dataset.servicoId;
       const servico = CONFIG.servicos.find(s => s.id === servicoId);
       if (servico) {
-        const promo = CONFIG.promocao;
-        const emPromo = promo?.ativa && (promo.tipo === 'todos' || promo.servicos.includes(servico.id));
-        const precoFinal = emPromo ? Math.round(servico.preco * (1 - promo.porcentagem / 100)) : servico.preco;
-        const msg = `Olá! Quero contratar o servico de **${servico.nome}** por R$ ${precoFinal}.`;
-        navigator.clipboard.writeText(msg).catch(() => {});
-        notify('Mensagem copiada! Cole no Discord.', 'success');
-        setTimeout(() => window.open(CONFIG.discord, '_blank'), 800);
+          showContratarModal(servico);
       }
       return;
     }
@@ -567,54 +689,6 @@ function initModal() {
       const servico = CONFIG.servicos.find(s => s.id === servicoId);
       if (servico) showDetalhesModal(servico);
     }
-  });
-}
-
-function showContratarModal(servico) {
-  const overlay = document.getElementById('modalOverlay');
-  const title = document.getElementById('modalTitle');
-  const body = document.getElementById('modalBody');
-  const footer = document.getElementById('modalFooter');
-
-  title.textContent = `Contratar: ${servico.nome}`;
-
-  body.innerHTML = `
-    <div class="modal-info">
-      <span class="modal-price">R$ ${servico.preco}</span>
-      <p>${servico.desc}</p>
-    </div>
-    <div class="form-group">
-      <label>Seu nome</label>
-      <input type="text" id="modalNome" placeholder="Digite seu nome" required>
-    </div>
-    <div class="form-group">
-      <label>Seu Discord</label>
-      <input type="text" id="modalDiscord" placeholder="Ex: usuario" required>
-    </div>
-  `;
-
-  footer.innerHTML = `
-    <button class="btn btn-outline" id="modalCancel">Cancelar</button>
-    <button class="btn btn-primary" id="modalConfirm">
-      <i class="fab fa-discord"></i> Confirmar Pedido
-    </button>
-  `;
-
-  overlay.classList.add('show');
-
-  document.getElementById('modalNome').focus();
-
-  document.getElementById('modalCancel').addEventListener('click', fecharModal);
-
-  document.getElementById('modalConfirm').addEventListener('click', async () => {
-    const nome = document.getElementById('modalNome').value.trim();
-    const discord = document.getElementById('modalDiscord').value.trim();
-    if (!nome || !discord) {
-      notify('Preencha todos os campos', 'error');
-      return;
-    }
-    await contratar(servico.id, servico.preco);
-    fecharModal();
   });
 }
 
@@ -664,35 +738,13 @@ function fecharModal() {
   if (overlay) overlay.classList.remove('show');
 }
 
-async function contratar(servicoId, preco) {
-  const servico = CONFIG.servicos.find(s => s.id === servicoId);
-  if (!servico) return;
-
-  const nome = document.getElementById('modalNome')?.value.trim();
-  const discord = document.getElementById('modalDiscord')?.value.trim();
-  if (!nome || !discord) {
-    notify('Preencha todos os campos', 'error');
-    return;
-  }
-
-  await enviarWebhook("Novo pedido!", [
-    { name: "Cliente", value: nome },
-    { name: "Discord", value: discord },
-    { name: "Serviço", value: servico.nome },
-    { name: "Valor", value: "R$ " + preco }
-  ]);
-
-  notify("Pedido enviado!", "success");
-  setTimeout(() => window.open(CONFIG.discord, '_blank'), 1000);
-}
-
 async function enviarWebhook(titulo, campos) {
-  if (!CONFIG.webhook) return;
+  if (!CONFIG.webhook) return false;
 
   const agora = Date.now();
   if (agora - lastWebhookTime < CONFIG.rateLimit) {
     const restante = Math.ceil((CONFIG.rateLimit - (agora - lastWebhookTime)) / 1000);
-    notify(`Aguarde ${restante}s para nova mensagem`, 'error');
+    notify(`Aguarde ${restante}s para enviar nova mensagem`, 'error');
     return false;
   }
 
@@ -718,6 +770,120 @@ async function enviarWebhook(titulo, campos) {
     console.error(e);
     notify('Erro ao enviar mensagem. Tente novamente.', 'error');
     return false;
+  }
+}
+
+function showContratarModal(servico) {
+  const overlay = document.getElementById('modalOverlay');
+  const title = document.getElementById('modalTitle');
+  const body = document.getElementById('modalBody');
+  const footer = document.getElementById('modalFooter');
+
+  const isPortfolio = !servico.id;
+  title.textContent = isPortfolio ? `Orçamento: ${servico.nome}` : `Contratar: ${servico.nome}`;
+
+  body.innerHTML = `
+    <div class="modal-info">
+      ${!isPortfolio ? `<span class="modal-price">R$ ${servico.preco}</span>` : ''}
+      <p>${servico.desc}</p>
+    </div>
+    <div class="form-group">
+      <label>Seu nome <span style="color:var(--error)">*</span></label>
+      <input type="text" id="modalNome" name="nome" placeholder="Digite seu nome" required>
+    </div>
+    <div class="form-group">
+      <label>Como prefere ser contactado? <span style="color:var(--error)">*</span></label>
+      <div class="contact-options">
+        <label class="contact-option">
+          <input type="radio" name="contactMethod" value="discord" checked>
+          <i class="fab fa-discord"></i> Discord
+        </label>
+        <label class="contact-option">
+          <input type="radio" name="contactMethod" value="whatsapp">
+          <i class="fab fa-whatsapp"></i> WhatsApp
+        </label>
+        <label class="contact-option">
+          <input type="radio" name="contactMethod" value="email">
+          <i class="fas fa-envelope"></i> Email
+        </label>
+      </div>
+    </div>
+    <div class="form-group" id="contactInputGroup">
+      <label id="contactInputLabel">Seu Discord</label>
+      <input type="text" id="modalContact" name="contato" placeholder="Ex: usuario" required>
+    </div>
+    <div class="form-group">
+      <label>Descrição do projeto <span style="color:var(--text-muted);font-weight:400">(opcional)</span></label>
+      <textarea id="modalDesc" name="descricao" rows="3" placeholder="Conte um pouco sobre o que precisa..."></textarea>
+    </div>
+  `;
+
+  footer.innerHTML = `
+    <button class="btn btn-outline" id="modalCancel">Cancelar</button>
+    <button class="btn btn-primary" id="modalConfirm">
+      <i class="fas fa-paper-plane"></i> Solicitar Orçamento
+    </button>
+  `;
+
+  overlay.classList.add('show');
+
+  document.getElementById('modalNome').focus();
+
+  document.querySelectorAll('input[name="contactMethod"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const label = document.getElementById('contactInputLabel');
+      const input = document.getElementById('modalContact');
+      const val = document.querySelector('input[name="contactMethod"]:checked').value;
+      if (val === 'discord') {
+        label.textContent = 'Seu Discord';
+        input.placeholder = 'Ex: usuario';
+      } else if (val === 'whatsapp') {
+        label.textContent = 'Seu WhatsApp';
+        input.placeholder = '(11) 99999-9999';
+      } else {
+        label.textContent = 'Seu Email';
+        input.placeholder = 'exemplo@email.com';
+      }
+    });
+  });
+
+  document.getElementById('modalCancel').addEventListener('click', fecharModal);
+
+  document.getElementById('modalConfirm').addEventListener('click', async () => {
+    if (submitting) return;
+    const nome = sanitizeInput(document.getElementById('modalNome').value.trim());
+    const contato = sanitizeInput(document.getElementById('modalContact').value.trim());
+    const metodo = document.querySelector('input[name="contactMethod"]:checked')?.value;
+    if (!nome || !contato || !metodo) {
+      notify('Preencha seu nome e um contato', 'error');
+      return;
+    }
+    const preco = servico.preco;
+    submitting = true;
+    document.getElementById('modalConfirm').disabled = true;
+    await contratar(servico, preco, nome, contato, metodo);
+    fecharModal();
+    submitting = false;
+  });
+}
+
+async function contratar(servico, preco, nome, contato, metodo) {
+  const descInput = document.getElementById('modalDesc');
+  const desc = descInput ? sanitizeInput(descInput.value.trim()) : '';
+  const fields = [
+    { name: "Cliente", value: nome },
+    { name: "Contato", value: `[${metodo.toUpperCase()}] ${contato}` },
+    { name: "Serviço", value: servico.nome },
+    { name: "Valor", value: preco ? "R$ " + preco : "A combinar" }
+  ];
+  if (desc) fields.push({ name: "Descrição", value: desc });
+  const webhookOk = await enviarWebhook("Novo pedido!", fields);
+
+  if (webhookOk) {
+    notify("Pedido enviado com sucesso!", "success");
+    if (metodo === 'discord') {
+      setTimeout(() => window.open(CONFIG.discord, '_blank'), 1000);
+    }
   }
 }
 
@@ -752,36 +918,73 @@ function quickReply(tipo) {
   body.innerHTML = `
     <p style="margin-bottom:1rem;font-size:0.9rem">${msgs[tipo]}</p>
     <div class="form-group">
-      <label>Seu Discord</label>
-      <input type="text" id="modalDiscord" placeholder="Ex: usuario" required>
+      <label>Como prefere ser contactado?</label>
+      <div class="contact-options">
+        <label class="contact-option">
+          <input type="radio" name="quickContact" value="discord" checked>
+          <i class="fab fa-discord"></i> Discord
+        </label>
+        <label class="contact-option">
+          <input type="radio" name="quickContact" value="whatsapp">
+          <i class="fab fa-whatsapp"></i> WhatsApp
+        </label>
+        <label class="contact-option">
+          <input type="radio" name="quickContact" value="email">
+          <i class="fas fa-envelope"></i> Email
+        </label>
+      </div>
+    </div>
+    <div class="form-group" id="quickContactGroup">
+      <label id="quickContactLabel">Seu Discord</label>
+      <input type="text" id="quickContactInput" name="contato" placeholder="Ex: usuario" required>
     </div>
   `;
   footer.innerHTML = `
     <button class="btn btn-outline" id="modalCancel">Cancelar</button>
     <button class="btn btn-primary" id="modalConfirm">
-      <i class="fab fa-discord"></i> Enviar
+      <i class="fas fa-paper-plane"></i> Enviar
     </button>
   `;
 
   overlay.classList.add('show');
 
+  document.querySelectorAll('input[name="quickContact"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const label = document.getElementById('quickContactLabel');
+      const input = document.getElementById('quickContactInput');
+      const val = document.querySelector('input[name="quickContact"]:checked').value;
+      if (val === 'discord') { label.textContent = 'Seu Discord'; input.placeholder = 'Ex: usuario'; }
+      else if (val === 'whatsapp') { label.textContent = 'Seu WhatsApp'; input.placeholder = '(11) 99999-9999'; }
+      else { label.textContent = 'Seu Email'; input.placeholder = 'exemplo@email.com'; }
+    });
+  });
+
   document.getElementById('modalCancel').addEventListener('click', fecharModal);
 
   document.getElementById('modalConfirm').addEventListener('click', async () => {
-    const discord = document.getElementById('modalDiscord').value.trim();
-    if (!discord) {
-      notify('Informe seu Discord', 'error');
+    if (submitting) return;
+    const contato = sanitizeInput(document.getElementById('quickContactInput').value.trim());
+    const metodo = document.querySelector('input[name="quickContact"]:checked')?.value;
+    if (!contato || !metodo) {
+      notify('Informe um contato', 'error');
       return;
     }
+    submitting = true;
+    document.getElementById('modalConfirm').disabled = true;
 
-    await enviarWebhook(`Quick: ${tipo}`, [
-      { name: "Discord", value: discord },
+    const ok = await enviarWebhook(`Quick: ${tipo}`, [
+      { name: "Contato", value: `[${metodo.toUpperCase()}] ${contato}` },
       { name: "Mensagem", value: msgs[tipo] }
     ]);
 
-    notify("Mensagem enviada!", "success");
+    submitting = false;
+    if (ok) {
+      notify("Mensagem enviada!", "success");
+      if (metodo === 'discord') {
+        setTimeout(() => window.open(CONFIG.discord, '_blank'), 1000);
+      }
+    }
     fecharModal();
-    setTimeout(() => window.open(CONFIG.discord, '_blank'), 1000);
 
     const panel = document.getElementById('widgetPanel');
     const toggle = document.getElementById('widgetToggle');
@@ -798,7 +1001,6 @@ function initDCWidget() {
     .then(data => {
       const count = data?.presence_count ?? '?';
       document.getElementById('dcMemberCount') && (document.getElementById('dcMemberCount').textContent = count);
-      document.getElementById('dcMemberCountContato') && (document.getElementById('dcMemberCountContato').textContent = count);
     })
     .catch(() => {});
 }
@@ -809,7 +1011,8 @@ function initFAQ() {
     if (!question) return;
     const item = question.closest('.faq-item');
     if (!item) return;
-    item.classList.toggle('open');
+    const isOpen = item.classList.toggle('open');
+    question.setAttribute('aria-expanded', isOpen);
   });
 }
 
@@ -844,5 +1047,15 @@ function initParallax() {
       });
       ticking = true;
     }
+  });
+}
+
+function initTermos() {
+  const toggle = document.getElementById('termosToggle');
+  const box = toggle?.closest('.termos-box');
+  if (!toggle || !box) return;
+  toggle.addEventListener('click', () => {
+    box.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', box.classList.contains('open'));
   });
 }

@@ -1,0 +1,16 @@
+{
+  "name": "Baccana's Studio™",
+  "short_name": "Baccana's",
+  "description": "Desenvolvimento profissional de servidores Minecraft",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "assets/favicon.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}

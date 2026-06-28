@@ -6,6 +6,8 @@ Landing Page moderna para divulgação de serviços de desenvolvimento Minecraft
 
 Este projeto foi desenvolvido pela **equipe da Baccanas** como uma landing page simples, rápida e totalmente estática para apresentação de serviços, portfólio e formas de contato.
 
+## Estrutura
+
 Nosso objetivo é oferecer uma base organizada e fácil de personalizar para quem deseja criar sua própria página.
 
 ## ❤️ Inspiração é bem-vinda
