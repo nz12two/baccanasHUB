@@ -375,7 +375,27 @@ function renderBlog() {
   };
 
   const validos = CONFIG.artigos?.filter(a => a.url || a.arquivo) || [];
-  renderCards(validos.slice(0, 3), '');
+
+  // Rotaciona artigos a cada 72h
+  const rotationKey = 'blogRotation';
+  const stored = localStorage.getItem(rotationKey);
+  let picked;
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      const age = Date.now() - parsed.time;
+      if (age < 72 * 60 * 60 * 1000 && Array.isArray(parsed.ids)) {
+        picked = parsed.ids.map(i => validos[i]).filter(Boolean);
+      }
+    } catch {}
+  }
+  if (!picked || picked.length < 3) {
+    const shuffled = [...validos].sort(() => Math.random() - 0.5);
+    picked = shuffled.slice(0, 3);
+    const ids = picked.map(p => validos.indexOf(p));
+    localStorage.setItem(rotationKey, JSON.stringify({ time: Date.now(), ids }));
+  }
+  renderCards(picked, '');
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 3000);
