@@ -2,7 +2,7 @@ name: Sync Substack
 
 on:
   schedule:
-    - cron: '0 10 1,15 * *'  # dia 1 e 15 de cada mês às 10h UTC
+    - cron: '0 10 1 * *'  # dia 1 de cada mês às 10h UTC
   workflow_dispatch:
 
 jobs:
