@@ -68,7 +68,7 @@ const CONFIG = {
       icon: "fas fa-newspaper",
       titulo: "Blog T\u00e9cnico",
       desc: "Artigos detalhados sobre plugins, otimiza\u00e7\u00e3o de TPS, configura\u00e7\u00e3o de servidores e integra\u00e7\u00f5es. Mais de 10 guias publicados no Substack.",
-      link: "https://bacanacat.substack.com",
+      link: "https://baccanadev.substack.com",
       linkText: "Ler artigos",
       cor: "#6366f1"
     },
@@ -337,7 +337,7 @@ const CONFIG = {
       resumo: "Guia completo do plugin znodes que transforma seu servidor em um mundo geopol\u00edtico com territ\u00f3rios, recursos e economias.",
       categoria: "Plugins",
       data: "2026-05-15",
-      url: "https://bacanacat.substack.com/p/geopolitica-no-minecraft-server-parte",
+      url: "https://baccanadev.substack.com/p/geopolitica-no-minecraft-server-parte",
       arquivo: "artigos/znodes-geopolitica.html"
     },
     {
@@ -347,7 +347,7 @@ const CONFIG = {
       resumo: "Crie e hospede seu servidor de Minecraft no seu pr\u00f3prio PC em 5 minutos, sem pagar nada.",
       categoria: "Tutoriais",
       data: "2025-12-03",
-      url: "https://bacanacat.substack.com/p/criar-minecraft-server-em-5-minutos",
+      url: "https://baccanadev.substack.com/p/criar-minecraft-server-em-5-minutos",
       arquivo: "artigos/criar-server-5-min.html"
     },
     {
@@ -357,7 +357,7 @@ const CONFIG = {
       resumo: "Aprenda a liberar seu servidor para jogadores de todas as plataformas: mobile, console e PC no mesmo servidor.",
       categoria: "Tutoriais",
       data: "2026-04-28",
-      url: "https://bacanacat.substack.com/p/servidor-java-e-bedrock",
+      url: "https://baccanadev.substack.com/p/servidor-java-e-bedrock",
       arquivo: "artigos/java-bedrock.html"
     },
     {
@@ -367,7 +367,7 @@ const CONFIG = {
       resumo: "Aprenda a configurar o plugin Dynmap e tenha um mapa ao vivo do seu servidor, acess\u00edvel pelo navegador.",
       categoria: "Plugins",
       data: "2026-04-10",
-      url: "https://bacanacat.substack.com/p/mapa-do-minecraft-em-tempo-real",
+      url: "https://baccanadev.substack.com/p/mapa-do-minecraft-em-tempo-real",
       arquivo: "artigos/dynmap-tempo-real.html"
     },
     {
@@ -377,7 +377,7 @@ const CONFIG = {
       resumo: "Crie scoreboards personalizados no seu servidor usando plugins. Deixe seu servidor mais bonito e informativo.",
       categoria: "Plugins",
       data: "2026-03-20",
-      url: "https://bacanacat.substack.com/p/scoreboard-em-servidor-de-minecraft",
+      url: "https://baccanadev.substack.com/p/scoreboard-em-servidor-de-minecraft",
       arquivo: "artigos/scoreboard-plugin.html"
     },
     {
@@ -387,7 +387,7 @@ const CONFIG = {
       resumo: "Entenda o arquivo server.properties, a configura\u00e7\u00e3o principal de qualquer servidor Minecraft Java.",
       categoria: "Tutoriais",
       data: "2026-03-05",
-      url: "https://bacanacat.substack.com/p/serverproperties-minecraft-server",
+      url: "https://baccanadev.substack.com/p/serverproperties-minecraft-server",
       arquivo: "artigos/server-properties.html"
     },
     {
@@ -454,6 +454,5 @@ const CONFIG = {
       status: "em-breve",
       progresso: 0
     }
-  ]
   ]
 };

@@ -370,7 +370,7 @@ function renderBlog() {
         </div>
       `;
     }).join('') +
-    '<a href="https://bacanacat.substack.com" target="_blank" class="blog-substack-link"><i class="fas fa-external-link-alt"></i> Ver todos no Substack</a>';
+    '<a href="https://baccanadev.substack.com" target="_blank" class="blog-substack-link"><i class="fas fa-external-link-alt"></i> Ver todos no Substack</a>';
     observeCards();
   };
 
@@ -379,7 +379,7 @@ function renderBlog() {
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 3000);
-  fetch('https://bacanacat.substack.com/api/v1/posts?limit=3', { signal: controller.signal })
+  fetch('https://baccanadev.substack.com/api/v1/posts?limit=3', { signal: controller.signal })
     .then(r => { clearTimeout(timeout); return r.ok ? r.json() : Promise.reject(); })
     .then(posts => {
       if (!posts || !posts.length) throw new Error('empty');

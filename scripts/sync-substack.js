@@ -3,7 +3,7 @@ const path = require('path');
 
 const CONFIG_PATH = 'config.js';
 const ARTIGOS_DIR = 'artigos';
-const API_URL = 'https://bacanacat.substack.com/api/v1/posts?limit=20';
+const API_URL = 'https://baccanadev.substack.com/api/v1/posts?limit=20';
 
 function slugify(s) {
   return s
