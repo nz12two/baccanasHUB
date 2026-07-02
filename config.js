@@ -36,7 +36,7 @@ const CONFIG = {
         bio: "Desenvolvedor full stack focado em criar solu\u00e7\u00f5es pr\u00e1ticas e confi\u00e1veis. Desenvolvo APIs, bots, automa\u00e7\u00f5es e sites que funcionam de forma est\u00e1vel e eficiente.",
         avatar: "assets/team/nz.webp",
         avatarBg: "linear-gradient(135deg, #f59e0b, #6366f1)",
-        portfolioUrl: "https://github.com/nz12two/portfolio",
+        portfolioUrl: "https://nz12two.github.io/portfolio/",
         social: {
           github: "https://github.com/nz12two",
           discord: "nz12two"
