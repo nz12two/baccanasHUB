@@ -8,14 +8,7 @@ const CONFIG = {
   discordUser: "baccanasdev",
   whatsapp: "5511999999999",
 
-  webhook: (function() {
-    const a = "discord.com/api/webhooks/";
-    const b = "1485398140457849082";
-    const c = "_n0y79jSLeKlyAhbqSp4VB64mkGOlHCMeQ9LsFb7IdYbiOzNgw-S9R5ZQBhrJQFuwDoc";
-    return "https://" + a + b + "/" + c;
-  })(),
-
-  rateLimit: 30000,
+  apiUrl: "/api/contact",
 
   about: {
     story: "A Baccana's Studio\u2122 nasceu da paixão por Minecraft e desenvolvimento. Começamos configurando servidores para amigos e, com o tempo, percebemos que havia uma demanda enorme por serviços de qualidade no mercado brasileiro. Hoje atendemos dezenas de servidores, sempre com o mesmo cuidado: entrega testada, suporte de verdade e preço justo.",
@@ -33,8 +26,7 @@ const CONFIG = {
         social: {
           github: "https://github.com/baccanadev",
           youtube: "https://youtube.com/@baccanasdev",
-          discord: "baccanadev",
-          whatsapp: "5513996820477"
+          discord: "baccanadev"
         }
       },
       {
@@ -47,9 +39,7 @@ const CONFIG = {
         portfolioUrl: "https://nz12two.github.io/dev/",
         social: {
           github: "https://github.com/nz12two",
-          discord: "1223791822795575400",
-          whatsapp: "5571992227288",
-          email: "nzjr123@gmail.com"
+          discord: "nz12two"
         }
       }
     ]

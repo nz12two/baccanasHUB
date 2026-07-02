@@ -1,4 +1,5 @@
 let lastWebhookTime = 0;
+const API_URL = CONFIG.apiUrl || '/api/contact';
 let submitting = false;
 
 function sanitizeInput(str) {
@@ -759,11 +760,9 @@ function fecharModal() {
 }
 
 async function enviarWebhook(titulo, campos) {
-  if (!CONFIG.webhook) return false;
-
   const agora = Date.now();
-  if (agora - lastWebhookTime < CONFIG.rateLimit) {
-    const restante = Math.ceil((CONFIG.rateLimit - (agora - lastWebhookTime)) / 1000);
+  if (agora - lastWebhookTime < 30000) {
+    const restante = Math.ceil((30000 - (agora - lastWebhookTime)) / 1000);
     notify(`Aguarde ${restante}s para enviar nova mensagem`, 'error');
     return false;
   }
@@ -771,20 +770,12 @@ async function enviarWebhook(titulo, campos) {
   lastWebhookTime = agora;
 
   try {
-    const res = await fetch(CONFIG.webhook, {
+    const res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        embeds: [{
-          title: titulo,
-          color: 0x6366f1,
-          fields: campos,
-          footer: { text: CONFIG.nome },
-          timestamp: new Date().toISOString()
-        }]
-      })
+      body: JSON.stringify({ titulo, campos })
     });
-    if (!res.ok) throw new Error('Falha no webhook');
+    if (!res.ok) throw new Error('Falha no envio');
     return true;
   } catch (e) {
     console.error(e);
